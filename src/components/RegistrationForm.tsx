@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UserInput } from '../types';
 import { motion } from 'framer-motion';
@@ -10,30 +10,13 @@ interface Props {
 }
 
 export const RegistrationForm: React.FC<Props> = ({ consultantCode, onSubmit }) => {
-    const { register, handleSubmit, formState: { errors } } = useForm<UserInput & { captchaAnswer: string }>();
+    const { register, handleSubmit, formState: { errors } } = useForm<UserInput>();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
-    const [captchaA, setCaptchaA] = useState(0);
-    const [captchaB, setCaptchaB] = useState(0);
 
-    // Initialize CAPTCHA
-    useEffect(() => {
-        setCaptchaA(Math.floor(Math.random() * 9) + 1);
-        setCaptchaB(Math.floor(Math.random() * 9) + 1);
-    }, []);
-
-    const handleFormSubmit = async (data: UserInput & { captchaAnswer: string }) => {
+    const handleFormSubmit = async (data: UserInput) => {
         setIsSubmitting(true);
         setSubmitError(null);
-
-        // Validate CAPTCHA
-        if (parseInt(data.captchaAnswer) !== captchaA + captchaB) {
-            setSubmitError('Kết quả phép toán không chính xác. Vui lòng thử lại!');
-            setCaptchaA(Math.floor(Math.random() * 9) + 1);
-            setCaptchaB(Math.floor(Math.random() * 9) + 1);
-            setIsSubmitting(false);
-            return;
-        }
 
         try {
             // Check if phone or email exists
@@ -60,7 +43,6 @@ export const RegistrationForm: React.FC<Props> = ({ consultantCode, onSubmit }) 
                     full_name: data.fullName,
                     phone: data.phone,
                     email: data.email,
-                    concern: data.concern,
                     consultant_code: consultantCode,
                 }])
                 .select('id')
@@ -109,9 +91,17 @@ export const RegistrationForm: React.FC<Props> = ({ consultantCode, onSubmit }) 
                         <span>🧧</span> Hướng dẫn và thể lệ:
                     </p>
 
-                    <div className="space-y-0.5 text-white/90">
+                    <div className="space-y-1 text-white/90">
                         <p className="font-semibold text-yellow-200">1. Về số lượng bao lì xì</p>
-                        <p>Sẽ có tổng <strong>100 bao lì xì</strong>, tất cả đều chứa Voucher giảm học phí khóa học — giá trị từ <strong>500.000đ đến 3.000.000đ</strong> (trong đó, chỉ có duy nhất <strong>1 bao lì xì trị giá 3.000.000đ</strong>).</p>
+                        <p>Sẽ có tổng <strong>100 bao lì xì</strong>, bao gồm:</p>
+                        <ul className="pl-3 list-disc space-y-0.5">
+                            <li><strong>1 bao</strong> — <span className="text-yellow-300">3.000.000đ</span></li>
+                            <li><strong>3 bao</strong> — <span className="text-yellow-300">2.000.000đ</span></li>
+                            <li><strong>5 bao</strong> — <span className="text-yellow-300">1.500.000đ</span></li>
+                            <li><strong>8 bao</strong> — <span className="text-yellow-300">1.000.000đ</span></li>
+                            <li><strong>12 bao</strong> — <span className="text-yellow-300">800.000đ</span></li>
+                            <li><strong>71 bao</strong> — <span className="text-yellow-300">500.000đ</span></li>
+                        </ul>
                     </div>
 
                     <div className="space-y-1 text-white/90">
@@ -126,7 +116,7 @@ export const RegistrationForm: React.FC<Props> = ({ consultantCode, onSubmit }) 
                     <div className="space-y-1 text-white/90">
                         <p className="font-semibold text-yellow-200">3. Về Voucher của bạn:</p>
                         <ul className="pl-3 list-disc space-y-0.5">
-                            <li>Dùng để đăng ký các khoá học của anh <strong>Huỳnh Duy Khương tại AYP</strong>, hạn dùng đến hết <strong>30/04/2026</strong>.</li>
+                            <li>Dùng để đăng ký các khoá học của anh <strong>Huỳnh Duy Khương tại AYP</strong>, dùng cho lần đăng ký tư vấn đầu tiên, và đăng ký các khoá trong năm <strong>2026</strong>.</li>
                             <li>Không quy đổi thành tiền mặt hay chuyển nhượng.</li>
                             <li>Chính thức có giá trị khi bạn nhận được email từ: <span className="text-yellow-300">support.huynhduykhuong@ayp.vn</span>.</li>
                         </ul>
@@ -176,54 +166,6 @@ export const RegistrationForm: React.FC<Props> = ({ consultantCode, onSubmit }) 
                                 placeholder="VD: email@example.com"
                             />
                             {errors.email && <p className="text-yellow-300 text-xs mt-1">{errors.email.message}</p>}
-                        </div>
-
-                        <div className="pt-2">
-                            <label className="block text-sm font-bold text-yellow-400 mb-3 leading-relaxed">Bạn đang ưu tiên khía cạnh nào nhất?</label>
-                            <div className="space-y-2">
-                                <label className="flex items-start gap-3 text-white/90 text-sm cursor-pointer hover:bg-white/10 p-2 rounded-lg transition-colors border border-transparent hover:border-white/10">
-                                    <input
-                                        type="radio"
-                                        value="Sức khoẻ, năng lượng, vóc dáng."
-                                        {...register('concern', { required: 'Vui lòng chọn một ưu tiên' })}
-                                        className="mt-1 flex-shrink-0"
-                                    />
-                                    <span className="leading-snug">Sức khoẻ, năng lượng, vóc dáng.</span>
-                                </label>
-                                <label className="flex items-start gap-3 text-white/90 text-sm cursor-pointer hover:bg-white/10 p-2 rounded-lg transition-colors border border-transparent hover:border-white/10">
-                                    <input
-                                        type="radio"
-                                        value="Kỹ năng thuyết trình, giao tiếp"
-                                        {...register('concern')}
-                                        className="mt-1 flex-shrink-0"
-                                    />
-                                    <span className="leading-snug">Kỹ năng thuyết trình, giao tiếp</span>
-                                </label>
-                                <label className="flex items-start gap-3 text-white/90 text-sm cursor-pointer hover:bg-white/10 p-2 rounded-lg transition-colors border border-transparent hover:border-white/10">
-                                    <input
-                                        type="radio"
-                                        value="Khả năng phối hợp giao tiếp với cấp trên, cấp dưới."
-                                        {...register('concern')}
-                                        className="mt-1 flex-shrink-0"
-                                    />
-                                    <span className="leading-snug">Khả năng phối hợp giao tiếp với cấp trên, cấp dưới.</span>
-                                </label>
-                            </div>
-                            {errors.concern && <p className="text-yellow-300 text-xs mt-2">{errors.concern.message}</p>}
-                        </div>
-
-                        {/* Math CAPTCHA */}
-                        <div>
-                            <label className="block text-sm font-medium text-yellow-200 mb-1">
-                                Xác thực chống spam: {captchaA} + {captchaB} = ?
-                            </label>
-                            <input
-                                {...register('captchaAnswer', { required: 'Vui lòng nhập kết quả' })}
-                                type="number"
-                                className="w-full bg-white/20 border border-white/30 text-white placeholder-white/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all font-mono"
-                                placeholder="Nhập kết quả phép cộng"
-                            />
-                            {errors.captchaAnswer && <p className="text-yellow-300 text-xs mt-1">{errors.captchaAnswer.message}</p>}
                         </div>
 
                         <div className="pt-2">

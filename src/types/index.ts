@@ -16,7 +16,6 @@ export interface UserInput {
     fullName: string;
     email: string;
     phone: string;
-    concern: string;
 }
 
 export interface PlayRecord {

@@ -117,7 +117,6 @@ export const EnvelopeContainer: React.FC<Props> = ({ leadId, user, consultantCod
                             full_name: user?.fullName,
                             phone: user?.phone,
                             email: user?.email,
-                            concern: user?.concern,
                             lead_id: leadId,
                             slot_number: slotNumber,
                             prize_id: result.prize_id,
