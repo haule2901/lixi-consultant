@@ -32,6 +32,12 @@ export const CodeGate: React.FC<Props> = ({ onCodeVerified }) => {
 
             const result = data?.[0];
             if (result?.valid) {
+                // Khoá mã ngay lập tức để không ai khác dùng được
+                await supabase
+                    .from('consultant_codes')
+                    .update({ is_used: true, used_at: new Date().toISOString() })
+                    .eq('code', trimmed);
+
                 onCodeVerified(trimmed);
             } else {
                 setError('Mã không hợp lệ hoặc đã được sử dụng. Vui lòng liên hệ tư vấn viên để nhận mã mới.');
